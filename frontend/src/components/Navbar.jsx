@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const userId = localStorage.getItem("userId");
+  const [initial, setInitial] = useState("");
+
+  useEffect(() => {
+    console.log("Entering useEff");
+    fetch(`${process.env.REACT_APP_API}/api/users/${userId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.username) {
+          setInitial(data.username.charAt(0).toUpperCase());
+        }
+      });
+  }, [userId]);
 
   const HandleNavigateAndScroll = (sectionId) => {
     if (location.pathname === "/") {
@@ -63,6 +76,27 @@ function Navbar() {
               Contact
             </button>
           </li>
+          {initial && (
+            <span
+              onClick={() => navigate(`/profile/${userId}`)}
+              style={{
+                width: "35px",
+                height: "35px",
+                borderRadius: "50%",
+                backgroundColor: "red",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                color: "white",
+                textTransform: "uppercase",
+                cursor: "pointer",
+              }}
+              title="User Profile"
+            >
+              {initial}
+            </span>
+          )}
         </ul>
       </div>
     </nav>

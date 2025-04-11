@@ -14,7 +14,7 @@ const IdeaSchema = new mongoose.Schema({
     default: undefined,
     validate: {
       validator: function (value) {
-        return this.type === "Software" || value.length === 0; 
+        return this.type === "Software" || value.length === 0;
       },
       message: "TechStack should only be provided if type is 'Software'.",
     },
@@ -31,8 +31,8 @@ const IdeaSchema = new mongoose.Schema({
       timestamp: { type: Date, default: Date.now },
       status: {
         type: String,
-        enum: ["Pending", "Accepted", "Rejected"],
-        default: "Pending",
+        enum: ["Accept", "Accepted", "Rejected"],
+        default: "Accept",
       },
     },
   ],

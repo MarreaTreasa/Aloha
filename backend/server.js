@@ -4,6 +4,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const UserRoutes = require("./Routes/UserRoutes");
 const IdeaRoutes = require("./Routes/IdeaRoutes");
+const ProfileRoutes = require("./Routes/ProfileRoutes");
+const EmailRoutes = require("./Routes/EmailRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -33,6 +35,8 @@ app.get("/", (res) => {
 // Include User Routes for authentication
 app.use("/api/users", UserRoutes);
 app.use("/api/ideas", IdeaRoutes);
+app.use("/api/profile", ProfileRoutes);
+app.use("/api/email", EmailRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

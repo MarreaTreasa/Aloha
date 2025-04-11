@@ -76,8 +76,16 @@ router.get("/print", async (req, res) => {
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, category, type, techStack, collaborators, status } =
-      req.body;
+    const {
+      title,
+      category,
+      type,
+      techStack,
+      collaborators,
+      status,
+      senderId,
+      collaborationStatus,
+    } = req.body;
 
     if (
       !title &&
@@ -85,7 +93,9 @@ router.put("/update/:id", async (req, res) => {
       !type &&
       !techStack &&
       !collaborators &&
-      !status
+      !status &&
+      !senderId &&
+      !collaborationStatus
     ) {
       return res
         .status(400)
@@ -98,23 +108,68 @@ router.put("/update/:id", async (req, res) => {
     if (category) updateFields.category = category;
     if (type) updateFields.type = type;
     if (collaborators) updateFields.collaborators = collaborators;
-    if (status) updateFields.status = status;
+
+    // Validate status if provided
+    const allowedStatuses = [
+      "View",
+      "Under Build",
+      "Looking for Collaborators",
+      "Complete",
+    ];
+    if (status) {
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({
+          error: `Invalid status value. Must be one of: ${allowedStatuses.join(
+            ", "
+          )}`,
+        });
+      }
+      updateFields.status = status;
+    }
+
     if (type === "Software" && techStack) {
-      console.log("Type of techstack:", typeof techStack);
-      if (typeof techStack === "string")
+      if (typeof techStack === "string") {
         updateFields.techStack = techStack
           .split(",")
           .map((item) => item.trim());
+      }
     } else if (type === "Hardware") {
       updateFields.$unset = { techStack: "" };
     }
 
     const updatedIdea = await Idea.findByIdAndUpdate(id, updateFields, {
       new: true,
+      runValidators: true,
     });
 
     if (!updatedIdea) {
       return res.status(404).json({ error: "Idea not found" });
+    }
+
+    // Handle collaboration request update
+    if (senderId && collaborationStatus) {
+      const collabRequest = updatedIdea.collaborationReq.find(
+        (req) => req.senderId.toString() === senderId
+      );
+
+      if (collabRequest) {
+        // Validate status for collaborationReq
+        const validStatuses = ["Accept", "Accepted", "Rejected"];
+        if (!validStatuses.includes(collaborationStatus)) {
+          return res.status(400).json({
+            error: `Invalid collaborationStatus. Must be one of: ${validStatuses.join(
+              ", "
+            )}`,
+          });
+        }
+
+        collabRequest.status = collaborationStatus;
+        await updatedIdea.save(); // <-- this line triggers full schema validation
+      } else {
+        return res.status(404).json({
+          error: "Collaboration request not found for this senderId",
+        });
+      }
     }
 
     res
@@ -168,10 +223,31 @@ router.post("/:id/request-collaboration", async (req, res) => {
     .json({ message: "Collaboration request sent successfully..." });
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const idea = await Idea.findById(id);
+
+    if (!idea) {
+      return res.status(404).json({ error: "Idea not found" });
+    }
+
+    res.status(200).json(idea);
+  } catch (error) {
+    console.error("Error fetching idea:", error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
 router.get("/:userId/notifications", async (req, res) => {
   try {
     const { userId } = req.params;
-    const ideas = await Idea.find({ owner: userId });
+    const ideas = await Idea.find({ owner: userId }).populate(
+      "collaborationReq.senderId",
+      "username"
+    );
 
     if (ideas.length === 0) {
       return res.status(404).json({ message: "No ideas found for this user." });
@@ -182,7 +258,11 @@ router.get("/:userId/notifications", async (req, res) => {
       .map((idea) => ({
         ideaId: idea._id,
         title: idea.title,
-        senderIds: idea.collaborationReq.map((req) => req.senderId),
+        senders: idea.collaborationReq.map((req) => ({
+          id: req.senderId._id,
+          username: req.senderId.username,
+          status: req.status,
+        })),
       }));
 
     if (notifications.length === 0) {
@@ -194,6 +274,41 @@ router.get("/:userId/notifications", async (req, res) => {
     res.status(200).json({ notifications });
   } catch (error) {
     console.error("Error fetching notifications:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.patch("/:ideaId/accept-collaboration/:requestId", async (req, res) => {
+  try {
+    const { ideaId, requestId } = req.params;
+
+    const idea = await Idea.findById(ideaId);
+    if (!idea) {
+      return res.status(404).json({ error: "Idea not found" });
+    }
+
+    const request = idea.collaborationReq.find(
+      (req) => req._id.toString() === requestId
+    );
+
+    if (!request) {
+      return res.status(404).json({ error: "Collaboration request not found" });
+    }
+
+    if (request.status === "Accepted") {
+      return res
+        .status(400)
+        .json({ error: "Request has already been accepted" });
+    }
+
+    request.status = "Accepted";
+    await idea.save();
+
+    res
+      .status(200)
+      .json({ message: "Collaboration request accepted successfully", idea });
+  } catch (error) {
+    console.error("Error updating collaboration status:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

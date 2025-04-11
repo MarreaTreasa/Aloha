@@ -13,7 +13,6 @@ const MainPage = () => {
       setShowPopup(true); // Show the popup after 3 seconds
     }, 3000);
 
-    // Cleanup the timer on component unmount
     return () => clearTimeout(timer);
   }, []);
 

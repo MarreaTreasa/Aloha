@@ -5,7 +5,7 @@ function ContactPage() {
     <div>
       <section
         id="contact"
-        className="min-h-screen bg-purple-500 flex flex-col justify-center items-center p-8"
+        className="min-h-screen bg-gradient-to-r from-purple-500 to-blue-500 flex flex-col justify-center items-center p-8"
       >
         <motion.div
           initial={{ opacity: 0, y: -50 }}
@@ -24,7 +24,7 @@ function ContactPage() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="bg-purple-200 text-purple-500 rounded-lg shadow-lg p-6 w-full max-w-md"
+          className=" rounded-lg p-6 w-full max-w-md"
         >
           <h2 className="text-2xl font-bold mb-4 text-center">
             Contact Details
