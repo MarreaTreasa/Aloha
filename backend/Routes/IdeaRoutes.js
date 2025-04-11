@@ -127,7 +127,7 @@ router.put("/update/:id", async (req, res) => {
       updateFields.status = status;
     }
 
-    if (type === "Software" && techStack) {
+    if (techStack) {
       if (typeof techStack === "string") {
         updateFields.techStack = techStack
           .split(",")

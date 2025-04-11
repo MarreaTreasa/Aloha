@@ -12,12 +12,6 @@ const IdeaSchema = new mongoose.Schema({
   techStack: {
     type: [String],
     default: undefined,
-    validate: {
-      validator: function (value) {
-        return this.type === "Software" || value.length === 0;
-      },
-      message: "TechStack should only be provided if type is 'Software'.",
-    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
