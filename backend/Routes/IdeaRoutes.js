@@ -56,7 +56,8 @@ router.get("/print", async (req, res) => {
     if (userId) {
       filter.owner = userId;
     }
-    const ideas = await Idea.find(filter).sort({ likes: -1 });
+    const ideas = await Idea.find(filter).sort(
+      { likes: -1 }).populate("owner", "username");
     console.log("Ideas from IdeasList:", ideas);
 
     if (ideas.length === 0) {

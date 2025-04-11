@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaHeart } from "react-icons/fa";
+import { FiHeart } from "react-icons/fi"; // Outlined heart
 
 function IdeaPage() {
   const navigate = useNavigate();
@@ -23,11 +25,11 @@ function IdeaPage() {
         }
       );
       if (response.ok) {
-        const { likes } = await response.json();
+        const { likes, likedby } = await response.json();
 
         setIdeas((prevIdeas) =>
           prevIdeas.map((idea) =>
-            idea._id === ideaID ? { ...idea, likes } : idea
+            idea._id === ideaID ? { ...idea, likes, likedby } : idea
           )
         );
       } else {
@@ -72,35 +74,46 @@ function IdeaPage() {
             <p className="text-lg mt-4">No ideas available currently.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 p-6 w-full max-w-6xl">
-              {ideas.map((idea) => (
-                <div
-                  key={idea._id}
-                  onClick={() => navigate(`/idea/${idea._id}`)}
-                  className="bg-white text-black p-4 rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200"
-                >
-                  <h1 className="text-xl font-bold">{idea.title}</h1>
-                  <p className="text-lg text-gray-700">{idea.description}</p>
+              {ideas.map((idea) => {
+                const hasLiked = idea.likedby?.includes(userId);
+                return (
+                  <div
+                    key={idea._id}
+                    onClick={() => navigate(`/idea/${idea._id}`)}
+                    className="bg-white text-black p-4 rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform duration-200"
+                  >
+                    <h1 className="text-xl font-bold">{idea.title}</h1>
+                    <p className=" text-violet-500 text-sm font-medium px-3 py-1 rounded-full italic mb-1">
+                      By {idea.owner?.username || "Unknown"}
+                    </p>
+                    <p className="text-lg text-gray-700">{idea.description}</p>
 
-                  <div className="flex justify-between">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        HandleLikes(idea._id);
-                      }}
-                      className="text-red-500"
-                    >
-                      ❤️ {idea.likes}
-                    </button>
+                    <div className="flex justify-between mt-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          HandleLikes(idea._id);
+                        }}
+                        className="text-black rounded-full px-3 py-1 flex items-center gap-2 hover:bg-gray-100"
+                      >
+                        {hasLiked ? (
+                          <FaHeart className="text-black text-sm" />
+                        ) : (
+                          <FiHeart className="text-black text-sm" />
+                        )}
+                        {idea.likes}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
-        <div className="flex flex-col items-center justify-center flex-grow">
+        <div className="flex flex-col items-center justify-center flex-grow mb-10">
           <button
             onClick={handleViewYourIdeas}
-            className="bg-blue-400 text-white py-2 px-4 rounded-md flex items-center"
+            className="bg-white text-black border-black border-2 p-4 shadow-lg relative py-2 px-4 rounded-md flex items-center"
           >
             View Your Ideas
           </button>

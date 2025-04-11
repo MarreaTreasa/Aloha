@@ -10,9 +10,9 @@ function IdeaDetailPage() {
   const userId = localStorage.getItem("userId");
 
   const statuscolors = {
-    "View": "bg-green-500",
+    View: "bg-green-500",
     "Looking for Collaborators": "bg-yellow-500",
-    "Complete": "bg-gray-500",
+    Complete: "bg-gray-500",
     "Under Build": "bg-blue-500",
   };
 
@@ -65,7 +65,7 @@ function IdeaDetailPage() {
     <div className="min-h-screen bg-gray-800 flex flex-col items-center justify-center p-6">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
         <h1 className="text-3xl font-bold mb-4">{idea.title}</h1>
-        <span className="text-red-500 mt-4">❤️ {idea.likes}</span>
+        {/* <span className="text-red-500 mt-4">❤️ {idea.likes}</span> */}
         <p className="text-lg text-gray-700 mb-2">{idea.description}</p>
         <p className="text-lg font-semibold">Category: {idea.category}</p>
         <p className="text-lg font-semibold">Type: {idea.type}</p>
