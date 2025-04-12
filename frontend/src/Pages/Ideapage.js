@@ -65,7 +65,7 @@ function IdeaPage() {
     <div>
       <section
         id="ideas"
-        className="min-h-screen bg-gradient-to-r from-purple-500 to-blue-500 flex flex-col items-center text-white"
+        className="min-h-screen bg-gradient-to-r from-indigo-500 to-purple-600 flex flex-col items-center text-white"
       >
         <div>
           <h1 className="text-4xl font-bold mt-20">Ideas</h1>
