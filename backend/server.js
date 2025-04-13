@@ -28,7 +28,7 @@ mongoose
   .catch((err) => console.log("Error connecting to MongoDB:", err));
 
 // Routes
-app.get("/", (res) => {
+app.get("/", (req, res) => {
   res.send("Welcome to the Idea Platform Backend API");
 });
 
