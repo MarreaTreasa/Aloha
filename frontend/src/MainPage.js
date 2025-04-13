@@ -8,13 +8,13 @@ const MainPage = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   // Show the AuthPage popup after 3 seconds
-  /* useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setShowPopup(true); // Show the popup after 3 seconds
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []); */
+  }, []);
 
   return (
     <div>
