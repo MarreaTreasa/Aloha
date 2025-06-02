@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function Navbar() {
+function Navbar({ setShowPopup }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = localStorage.getItem("userId");
+  const storedUserId = localStorage.getItem("userId");
+  const [userId, setUserId] = useState(storedUserId);
   const [initial, setInitial] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    console.log("Entering useEff");
+    if (!userId) {
+      setInitial("U"); // Default gray U when logged out
+      return;
+    }
+
     fetch(`${process.env.REACT_APP_API}/api/users/${userId}`)
       .then((response) => response.json())
       .then((data) => {
@@ -17,6 +24,17 @@ function Navbar() {
         }
       });
   }, [userId]);
+
+  // Close dropdown if clicked outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const HandleNavigateAndScroll = (sectionId) => {
     if (location.pathname === "/") {
@@ -41,9 +59,22 @@ function Navbar() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    setUserId(null);
+    setDropdownOpen(false);
+    navigate("/"); // Optional: redirect after logout
+  };
+
+  const handleLogin = () => {
+    setDropdownOpen(false);
+    setShowPopup(true); // Show login popup instead of navigation
+  };
+
   return (
-    <nav className="fixed top-0 left-0 w-full bg-black p-4 opacity-75">
-      <div className="container mx-auto flex justify-between text-white">
+    <nav className="fixed top-0 left-0 w-full bg-black p-4 opacity-75 z-50">
+      <div className="container mx-auto flex justify-between text-white relative">
         <h1
           className="text-2xl font-bold cursor-pointer"
           onClick={() => navigate("/")}
@@ -76,14 +107,15 @@ function Navbar() {
               Contact
             </button>
           </li>
-          {initial && (
+
+          <li className="relative" ref={dropdownRef}>
             <span
-              onClick={() => navigate(`/profile/${userId}`)}
+              onClick={() => setDropdownOpen((prev) => !prev)}
               style={{
                 width: "35px",
                 height: "35px",
                 borderRadius: "50%",
-                backgroundColor: "red",
+                backgroundColor: userId ? "red" : "gray",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -91,12 +123,78 @@ function Navbar() {
                 color: "white",
                 textTransform: "uppercase",
                 cursor: "pointer",
+                userSelect: "none",
               }}
-              title="User Profile"
+              title={userId ? "User Profile" : "Login"}
             >
-              {initial}
+              {initial || "U"}
             </span>
-          )}
+
+            {dropdownOpen && (
+              <ul
+                style={{
+                  position: "absolute",
+                  top: "45px",
+                  right: 0,
+                  backgroundColor: "white",
+                  color: "black",
+                  borderRadius: "5px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                  listStyle: "none",
+                  padding: "5px 0",
+                  minWidth: "150px",
+                  zIndex: 1000,
+                }}
+              >
+                {userId ? (
+                  <>
+                    <li
+                      style={{
+                        padding: "8px 15px",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                      onClick={() => {
+                        navigate(`/profile/${userId}`);
+                        setDropdownOpen(false);
+                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && navigate(`/profile/${userId}`)
+                      }
+                      tabIndex={0}
+                    >
+                      View Profile
+                    </li>
+                    <li
+                      style={{
+                        padding: "8px 15px",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                      onClick={handleLogout}
+                      onKeyDown={(e) => e.key === "Enter" && handleLogout()}
+                      tabIndex={0}
+                    >
+                      Logout
+                    </li>
+                  </>
+                ) : (
+                  <li
+                    style={{
+                      padding: "8px 15px",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                    }}
+                    onClick={handleLogin}
+                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                    tabIndex={0}
+                  >
+                    Login
+                  </li>
+                )}
+              </ul>
+            )}
+          </li>
         </ul>
       </div>
     </nav>

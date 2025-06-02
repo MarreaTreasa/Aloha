@@ -14,37 +14,43 @@ const AuthPage = ({ setShowPopup }) => {
     const payload = {
       email,
       password,
-      ...(username && { username }),
+      ...(username && !isLogin ? { username } : {}), // send username only on sign up
     };
 
     const url = isLogin
       ? `${process.env.REACT_APP_API}/api/users/login`
       : `${process.env.REACT_APP_API}/api/users/register`;
-    const method = "POST";
 
     try {
       const response = await fetch(url, {
-        method,
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
+
       const data = await response.json();
       console.log("data:", data);
 
       if (response.ok) {
-        setSuccess(data.message || "Request Successful");
+        setSuccess(data.message || "Request successful");
         setError("");
 
-        if (isLogin) {
-          setShowPopup(false); // Close the popup on successful login
-
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        if (data.user?.userId) {
           localStorage.setItem("userId", data.user.userId);
-          console.log("User id set from AuthPage:", data.user.userId);
+        }
+
+        if (isLogin) {
+          setShowPopup(false);
+          // Optionally reload to update Navbar userId from localStorage or use a better state management
+          window.location.reload();
         }
       } else {
-        setError(data.error || "Something went wrong!");
+        setError(data.message || "Something went wrong!");
         setSuccess("");
       }
     } catch (err) {
@@ -77,74 +83,53 @@ const AuthPage = ({ setShowPopup }) => {
         )}
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="mb-4">
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                className="w-full mt-1 p-2 border border-gray-300 rounded-md"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full border border-gray-300 p-2 mb-3 rounded"
+              required
+            />
           )}
-          <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="w-full mt-1 p-2 border border-gray-300 rounded-md"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="w-full mt-1 p-2 border border-gray-300 rounded-md"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-gray-300 p-2 mb-3 rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border border-gray-300 p-2 mb-3 rounded"
+            required
+          />
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
           >
             {isLogin ? "Login" : "Sign Up"}
           </button>
         </form>
-        <p className="text-center mt-4 text-sm text-gray-600">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <span
+        <div className="mt-4 text-center">
+          <button
             onClick={ToggleMode}
-            className="text-blue-500 font-semibold cursor-pointer hover:underline"
+            className="text-blue-600 hover:underline focus:outline-none"
           >
-            {isLogin ? "Sign Up" : "Login"}
-          </span>
-        </p>
+            {isLogin ? "Create an account" : "Already have an account? Login"}
+          </button>
+        </div>
+        <button
+          onClick={() => setShowPopup(false)}
+          className="absolute top-2 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl"
+          aria-label="Close popup"
+        >
+          &times;
+        </button>
       </div>
     </div>
   );
