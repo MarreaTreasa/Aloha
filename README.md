@@ -11,7 +11,7 @@
 
 ### Hosted Project Link
 
-(https://tink-her-hack-3-temp-six.vercel.app/)
+(https://aloha20-two.vercel.app/)
 
 ### Project Description
 
