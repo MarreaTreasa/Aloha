@@ -40,5 +40,7 @@ frontend:npm start
 ### Project Demo
 
 # Video
-
 https://youtu.be/1MBld6hoiHI
+
+# Disclaimer
+This project is an ongoing project and is not fully complete
