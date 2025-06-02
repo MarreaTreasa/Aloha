@@ -1,14 +1,5 @@
 # Aloha 🎯
 
-## Basic Details
-
-### Team Name: Arachnids
-
-### Team Members
-
-- Member 1: V Gopika Unni - GECT
-- Member 2: Marrea Treasa Francis - GECT
-
 ### Hosted Project Link
 
 (https://aloha20-two.vercel.app/)
@@ -50,26 +41,8 @@ npm install
 backend:npm run dev
 frontend:npm start
 
-### Project Documentation
-
-For Software:
-
-# Screenshots (Add at least 3)
-
-![Screenshot1](Add screenshot 1 here with proper name)
-_Add caption explaining what this shows_
-
-![Screenshot2](Add screenshot 2 here with proper name)
-_Add caption explaining what this shows_
-
-![Screenshot3](Add screenshot 3 here with proper name)
-_Add caption explaining what this shows_
-
 ### Project Demo
 
 # Video
 
 https://youtu.be/1MBld6hoiHI
-
-
-Made with ❤️ at TinkerHub
