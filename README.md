@@ -28,10 +28,6 @@ For Software:
 
 * Tools Used: MongoDB: As the database to store ideas, users, notifications, etc. Postman: For testing API endpoints during development. VS Code: As the IDE for development. Git/GitHub: For version control and collaboration. npm: For managing project dependencies. Webpack: For bundling React code (depending on your setup).
 
-### Implementation
-
-For Software:
-
 # Installation
 
 npm install
